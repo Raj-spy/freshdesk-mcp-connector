@@ -15,6 +15,7 @@ class TicketStatus(str, Enum):
     PENDING = "pending"    # 3
     RESOLVED = "resolved"  # 4
     CLOSED = "closed"      # 5
+    OTHER = "other"        # any custom Freshdesk status
 
 
 class TicketPriority(str, Enum):
