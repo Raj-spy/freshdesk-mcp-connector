@@ -16,7 +16,7 @@ caching and an audit log. No write operations exist.
 Requires Python 3.12. No Freshdesk account needed.
 
 ```bash
-git clone <this-repo> && cd freshdesk-mcp-connector
+git clone https://github.com/Raj-spy/freshdesk-mcp-connector && cd freshdesk-mcp-connector
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt -r requirements-dev.txt
 cp .env.example .env
