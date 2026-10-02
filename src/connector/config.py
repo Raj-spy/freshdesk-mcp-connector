@@ -17,6 +17,7 @@ class Settings(BaseSettings):
     max_retries: int = 3                  # retries after the first attempt
     max_retry_after_seconds: int = 30     # longest Retry-After we are willing to wait
     rate_limit_per_minute: int = 100      # set below your Freshdesk plan's limit
+    cache_ttl_seconds: int = 30           # 0 disables the cache
 
     @property
     def base_url(self) -> str:
@@ -30,3 +31,8 @@ class Settings(BaseSettings):
         if self.freshdesk_mode == "live" and key in {"", "mock-key", "changeme"}:
             raise ValueError("FRESHDESK_API_KEY must be set to a real key in live mode")
         return self
+    # who the connector acts as (Agent Studio would set these per tenant)
+    connector_tenant_id: str = "demo-tenant"
+    connector_credential_id: str = "demo-cred"
+    connector_permissions: str = "tickets:read"
+    audit_log_path: str = ""

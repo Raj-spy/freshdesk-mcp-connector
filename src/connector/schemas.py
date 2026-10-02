@@ -94,6 +94,7 @@ class ErrorCode(str, Enum):
     RATE_LIMITED = "rate_limited"         # 429 after retries exhausted
     UPSTREAM_ERROR = "upstream_error"     # 5xx after retries exhausted
     TIMEOUT = "timeout"
+    INTERNAL_ERROR = "internal_error"
 
 
 class ErrorResponse(BaseModel):

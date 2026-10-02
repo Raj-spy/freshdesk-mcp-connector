@@ -1,0 +1,141 @@
+[
+  {
+    "name": "list_tickets",
+    "description": "List Freshdesk tickets, newest first. READ-ONLY.\n\n        status: open | pending | resolved | closed (optional). When set, results come from\n        search: per_page is ignored (fixed 30), page max is 10, updated_since cannot be combined.\n        updated_since: ISO datetime. page: 1-300. per_page: 1-100.\n        include_description: default false. When true the customer message is returned with\n        emails/phone numbers masked and cut to 500 characters.\n        Returns tickets, page, has_more (and total when filtering by status), or an error\n        object with error_code, message, retryable.\n        ",
+    "inputSchema": {
+      "properties": {
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status"
+        },
+        "updated_since": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Updated Since"
+        },
+        "page": {
+          "default": 1,
+          "title": "Page",
+          "type": "integer"
+        },
+        "per_page": {
+          "default": 30,
+          "title": "Per Page",
+          "type": "integer"
+        },
+        "include_description": {
+          "default": false,
+          "title": "Include Description",
+          "type": "boolean"
+        }
+      },
+      "title": "list_ticketsArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "get_ticket",
+    "description": "Get one Freshdesk ticket by numeric id. READ-ONLY.\n\n        include_description: default false; when true the message is masked and truncated.\n        Returns id, subject, status, priority, requester_id, created_at, updated_at,\n        or an error object (not_found if the ticket does not exist).\n        ",
+    "inputSchema": {
+      "properties": {
+        "ticket_id": {
+          "title": "Ticket Id",
+          "type": "integer"
+        },
+        "include_description": {
+          "default": false,
+          "title": "Include Description",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "ticket_id"
+      ],
+      "title": "get_ticketArguments",
+      "type": "object"
+    }
+  },
+  {
+    "name": "search_tickets",
+    "description": "Search Freshdesk tickets. READ-ONLY. At least one filter is required.\n\n        requester_email: customer's email. status: open | pending | resolved | closed.\n        priority: low | medium | high | urgent. tag: a single tag. page: 1-10 (30 per page).\n        Filters are combined with AND. Returns tickets, page, has_more, total,\n        or an error object with error_code, message, retryable.\n        ",
+    "inputSchema": {
+      "properties": {
+        "requester_email": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Requester Email"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Status"
+        },
+        "priority": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Priority"
+        },
+        "tag": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Tag"
+        },
+        "page": {
+          "default": 1,
+          "title": "Page",
+          "type": "integer"
+        },
+        "include_description": {
+          "default": false,
+          "title": "Include Description",
+          "type": "boolean"
+        }
+      },
+      "title": "search_ticketsArguments",
+      "type": "object"
+    }
+  }
+]
