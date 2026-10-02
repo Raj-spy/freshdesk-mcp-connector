@@ -1,0 +1,64 @@
+
+=== 1. Normal request
+    agent asks : search_tickets {"requester_email": "asha@example.com", "status": "open"}
+    agent gets : 1 ticket(s) [2] | total=1 has_more=False
+    took 0.0s | Freshdesk (mock) was hit 1 time(s)
+    proves     : happy path, clean normalized output
+
+=== 2. Freshdesk rate-limits us twice (429, 429, then OK)
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ticket 1: Refund not received [resolved, medium]
+    took 4.0s | Freshdesk (mock) was hit 3 time(s)
+    proves     : connector waits Retry-After and recovers; the agent never sees the failure
+
+=== 3. Freshdesk keeps rate-limiting (429 forever)
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ERROR rate_limited (retryable=True, retry_after=2s): Freshdesk rate limit exceeded
+    took 4.1s | Freshdesk (mock) was hit 3 time(s)
+    proves     : bounded retries, then a clear retryable error with retry_after_seconds
+
+=== 4. Freshdesk is down (500 forever)
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ERROR upstream_error (retryable=True): Freshdesk server error (500)
+    took 2.1s | Freshdesk (mock) was hit 3 time(s)
+    proves     : bounded retries with backoff, then upstream_error
+
+=== 5. Freshdesk hangs (timeout)
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ERROR timeout (retryable=True): Freshdesk did not respond in time
+    took 2.6s | Freshdesk (mock) was hit 2 time(s)
+    proves     : request timeout enforced, retried once, then timeout error (agent is never left hanging)
+
+=== 6. Wrong API key
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ERROR unauthenticated (retryable=False): Freshdesk API key is invalid or missing
+    took 0.0s | Freshdesk (mock) was hit 1 time(s)
+    proves     : 401 is mapped to unauthenticated and NOT retried
+
+=== 7. Caller without the tickets:read permission
+    agent asks : get_ticket {"ticket_id": 1}
+    agent gets : ERROR forbidden (retryable=False): Missing permission: tickets:read
+    took 0.0s | Freshdesk (mock) was hit 0 time(s)
+    proves     : blocked before any Freshdesk call (hits stay at 0)
+
+=== 8. Invalid input from the agent
+    agent asks : list_tickets {"per_page": 5000}
+    agent gets : ERROR invalid_input (retryable=False): per_page: Input should be less than or equal to 100
+    took 0.0s | Freshdesk (mock) was hit 0 time(s)
+    proves     : validated and rejected before any Freshdesk call (hits stay at 0)
+
+=== 9. Same request twice in one session
+    mock hits after 1st call: 1, after identical 2nd call: 1
+    proves     : the second answer came from cache, not from Freshdesk
+
+=== Audit log (who / which tool / outcome / latency, never content or keys)
+    bfcbbdd9  search_tickets  ok                   6.7ms
+    8e9bec0e  get_ticket      ok                4010.4ms
+    f139a597  get_ticket      rate_limited      4025.8ms
+    94b9ec04  get_ticket      upstream_error    2138.1ms
+    e4b1f473  get_ticket      timeout           2610.8ms
+    f9d2c2dc  get_ticket      unauthenticated      4.1ms
+    b2a0bcd0  get_ticket      forbidden            0.1ms
+    212c8d05  list_tickets    invalid_input        0.5ms
+    3dc05111  get_ticket      ok                  10.3ms
+    09309117  get_ticket      ok                   0.0ms
